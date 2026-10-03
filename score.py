@@ -1,5 +1,41 @@
 import csv
+while True:
+    print("\n1. Enter Student Data")
+    print("2. Calculate Results and Grades")
+    print("3. View Class Summary Report")
+    print("4. Exit")
 
+    choice = input("Apna option select karein (1/2/3/4): ")
+
+    if choice == "1":
+        students_data = [["Name", "Math", "Science", "English"]]
+        while True:
+            name = input("Enter student name (or type 'done' to finish): ")
+            if name.lower() == "done":
+                break
+            math = input(f"Enter {name}'s Math marks: ")
+            science = input(f"Enter {name}'s Science marks: ")
+            english = input(f"Enter {name}'s English marks: ")
+            students_data.append([name, math, science, english])
+
+        with open("students.csv", "w", newline="") as f:
+            csv.writer(f).writerows(students_data)
+        print("Student data saved to students.csv.")
+
+    elif choice == "2":
+        # Code for calculating results and grades goes here
+        pass
+
+    elif choice == "3":
+        # Code for viewing class summary report goes here
+        pass
+
+    elif choice == "4":
+        print("Exiting...")
+        break
+
+    else:
+        print("Invalid option selected! Please 1, 2, 3, or 4 enter karein.")
 students_data = [
     ["Name", "Math", "Science", "English"],
     ["Ali", 88, 92, 85],
@@ -15,89 +51,55 @@ students_data = [
 ]
 
 with open("students.csv", "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerows(students_data)
+    csv.writer(f).writerows(students_data)
 
-results = []
-total_class_marks = 0
-top_student_name = ""
-top_student_avg = 0
+results = [["Name", "Math", "Science", "English", "Average", "Grade"]]
+total_marks = 0
+top_name = ""
+top_avg = 0
 
 with open("students.csv", "r") as f:
-    reader = csv.DictReader(f)
-    
+    reader = csv.reader(f)
+    next(reader)
     for row in reader:
-        name = row["Name"]
-        math = float(row["Math"])
-        science = float(row["Science"])
-        english = float(row["English"])
+        name = row[0]
+        m, s, e = float(row[1]), float(row[2]), float(row[3])
+        avg = round((m + s + e) / 3, 2)
         
-        average = round((math + science + english) / 3, 2)
+        if avg >= 85: grade = "A"
+        elif avg >= 70: grade = "B"
+        elif avg >= 50: grade = "C"
+        else: grade = "F"
         
-        if average >= 85:
-            grade = "A"
-        elif average >= 70:
-            grade = "B"
-        elif average >= 50:
-            grade = "C"
-        else:
-            grade = "F"
-            
-        results.append({
-            "Name": name,
-            "Math": math,
-            "Science": science,
-            "English": english,
-            "Average": average,
-            "Grade": grade
-        })
+        results.append([name, m, s, e, avg, grade])
+        total_marks += avg
         
-        total_class_marks += average
-        if average > top_student_avg:
-            top_student_avg = average
-            top_student_name = name
+        if avg > top_avg:
+            top_avg = avg
+            top_name = name
 
 with open("student_results.csv", "w", newline="") as f:
-    fields = ["Name", "Math", "Science", "English", "Average", "Grade"]
-    writer = csv.DictWriter(f, fieldnames=fields)
-    writer.writeheader()
-    writer.writerows(results)
+    csv.writer(f).writerows(results)
 
-class_average = round(total_class_marks / len(results), 2)
+class_avg = round(total_marks / (len(results) - 1), 2)
 
 with open("summary.txt", "w") as f:
-    f.write("==============================\n")
-    f.write("    CLASS SUMMARY REPORT      \n")
-    f.write("==============================\n")
-    f.write(f"Class Average : {class_average}\n")
-    f.write(f"Top Student   : {top_student_name} ({top_student_avg})\n")
+    f.write(f"==============================\n    CLASS SUMMARY REPORT      \n==============================\n")
+    f.write(f"Class Average : {class_avg}\nTop Student   : {top_name} ({top_avg})\n")
 
-# --- USER SELECTION MENU ---
 print("\nData processing complete! Aap kya dekhna chahte hain?")
-print("1. Original Students Data (students.csv)")
-print("2. Calculated Results and Grades (student_results.csv)")
-print("3. Class Summary Report (summary.txt)")
+print("1. Original Students Data (students.csv)\n2. Calculated Results and Grades (student_results.csv)\n3. Class Summary Report (summary.txt)")
 
 choice = input("Apna option select karein (1/2/3): ")
 
 if choice == "1":
-    print("\n--- Original Students Data ---")
     with open("students.csv", "r") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            print(row)
-
+        for row in csv.reader(f): print(row)
 elif choice == "2":
-    print("\n--- Student Results & Grades ---")
     with open("student_results.csv", "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            print(dict(row))
-
+        for row in csv.reader(f): print(row)
 elif choice == "3":
-    print("\n--- Class Summary Report ---")
     with open("summary.txt", "r") as f:
         print(f.read())
-
 else:
     print("Invalid option selected! Please 1, 2, ya 3 enter karein.")
